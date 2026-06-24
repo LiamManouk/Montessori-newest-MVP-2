@@ -41,6 +41,7 @@
   <div class="tabs">
     <div class="tab active" id="tab-create" onclick="switchTab('create')">Neue Kita anlegen</div>
     <div class="tab" id="tab-manage" onclick="switchTab('manage')">Bestehende Kita</div>
+    <div class="tab" id="tab-stats" onclick="switchTab('stats')">📊 Statistiken</div>
   </div>
 
   <!-- CREATE -->
@@ -70,7 +71,7 @@
   <div class="pane card" id="pane-manage">
     <label>Name der Einrichtung</label>
     <input type="text" id="m-name" placeholder="z. B. Kita Sonnenschein">
-    <button class="secondary" onclick="loadStats()" id="m-load-btn">Status laden</button>
+    <button class="secondary" onclick="loadKitaStatus()" id="m-load-btn">Status laden</button>
     <div class="result" id="m-result"></div>
     <div id="m-stats" style="display:none;margin-top:16px">
       <div class="stat-row"><span>Name</span><strong id="m-stat-name"></strong></div>
@@ -92,7 +93,7 @@ var currentName = null;
 function api(body) {
   return fetch(WORKER, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'x-admin-password': PW },
+    headers: { 'Content-Type': 'application/json', 'x-admin-password': 'passt' },
     body: JSON.stringify(body)
   }).then(function(r){ return r.json(); });
 }
@@ -100,8 +101,10 @@ function api(body) {
 function switchTab(tab) {
   document.getElementById('tab-create').classList.toggle('active', tab === 'create');
   document.getElementById('tab-manage').classList.toggle('active', tab === 'manage');
+  document.getElementById('tab-stats').classList.toggle('active', tab === 'stats');
   document.getElementById('pane-create').classList.toggle('active', tab === 'create');
   document.getElementById('pane-manage').classList.toggle('active', tab === 'manage');
+  document.getElementById('pane-stats').classList.toggle('active', tab === 'stats');
 }
 
 function showResult(id, msg, ok) {
@@ -135,7 +138,7 @@ async function createKita() {
   btn.disabled = false; btn.textContent = 'Profil erstellen';
 }
 
-async function loadStats() {
+async function loadKitaStatus() {
   var name = document.getElementById('m-name').value.trim();
   if (!name) { showResult('m-result', 'Bitte einen Namen eingeben.', false); return; }
   var btn = document.getElementById('m-load-btn');
@@ -184,6 +187,112 @@ async function resetGeraete() {
     showResult('m-result', 'Fehler: ' + e.message, false);
   }
 }
+
+async function loadStats() {
+  var pw = document.getElementById('admin-pw') ? document.getElementById('admin-pw').value : 'passt';
+  var loading = document.getElementById('stats-loading');
+  var content = document.getElementById('stats-content');
+  loading.textContent = 'Lade Statistiken...';
+  content.style.display = 'none';
+  try {
+    var r = await fetch('https://montessori-proxy.liam-broemer.workers.dev/stats', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-admin-password': PW },
+      body: JSON.stringify({})
+    });
+    var d = await r.json();
+    if (!d.ok) throw new Error(d.error);
+
+    document.getElementById('s-total').textContent = d.total_devices;
+    document.getElementById('s-new').textContent = d.today_new_devices;
+    document.getElementById('s-req').textContent = d.today_requests;
+    document.getElementById('s-yesterday').textContent = d.yesterday_new_devices;
+
+    var bots = d.today_bots || 0;
+    var humans = (d.today_requests || 0) - bots;
+    document.getElementById('s-humans').textContent = Math.max(0, humans);
+    document.getElementById('s-bots').textContent = bots;
+    var total = d.today_requests || 0;
+    document.getElementById('s-bot-pct').textContent = total > 0 ? 'Bot-Anteil: ' + Math.round(bots/total*100) + '%' : '';
+
+    var kita = d.today_kita_requests || 0;
+    document.getElementById('s-kita').textContent = kita;
+    document.getElementById('s-nokita').textContent = Math.max(0, (d.today_requests || 0) - kita);
+
+    // 7-Tage Tabelle
+    var weekHtml = '<table style="width:100%;border-collapse:collapse;font-size:12px">' +
+      '<tr style="color:#6b5a4e;text-align:left"><th style="padding:4px 8px;font-weight:500">Datum</th><th style="padding:4px 8px">Anfragen</th><th style="padding:4px 8px">Neue Geräte</th><th style="padding:4px 8px">Bots</th></tr>';
+    (d.days || []).forEach(function(day) {
+      var isToday = day.date === new Date().toISOString().slice(0,10);
+      weekHtml += '<tr style="border-top:1px solid #EAE0D2' + (isToday ? ';background:#F2EBE1;font-weight:600' : '') + '">' +
+        '<td style="padding:5px 8px">' + day.date.slice(5) + (isToday ? ' (heute)' : '') + '</td>' +
+        '<td style="padding:5px 8px">' + day.requests + '</td>' +
+        '<td style="padding:5px 8px">' + day.new_devices + '</td>' +
+        '<td style="padding:5px 8px;color:#C88A75">' + day.bots + '</td>' +
+      '</tr>';
+    });
+    weekHtml += '</table>';
+    document.getElementById('s-week').innerHTML = weekHtml;
+
+    loading.textContent = '';
+    content.style.display = 'block';
+  } catch(e) {
+    loading.textContent = 'Fehler: ' + e.message;
+  }
+}
+
 </script>
+
+  <!-- STATS PANE -->
+  <div class="pane card" id="pane-stats">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <strong style="font-size:15px">Nutzer & Aktivität</strong>
+      <button onclick="loadStats()" style="margin:0;width:auto;padding:7px 14px;font-size:12px">↻ Laden</button>
+    </div>
+    <div id="stats-loading" style="color:#8C6B58;font-size:13px;padding:8px 0">Klicke "Laden" um Statistiken abzurufen.</div>
+    <div id="stats-content" style="display:none">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px">
+        <div style="background:var(--sand);border-radius:10px;padding:14px;text-align:center">
+          <div id="s-total" style="font-size:28px;font-weight:700;color:#3d5e42">–</div>
+          <div style="font-size:11px;color:#6b5a4e;margin-top:3px">Unique Geräte</div>
+        </div>
+        <div style="background:var(--sand);border-radius:10px;padding:14px;text-align:center">
+          <div id="s-new" style="font-size:28px;font-weight:700;color:#3d5e42">–</div>
+          <div style="font-size:11px;color:#6b5a4e;margin-top:3px">Neu heute</div>
+        </div>
+        <div style="background:var(--sand);border-radius:10px;padding:14px;text-align:center">
+          <div id="s-req" style="font-size:28px;font-weight:700;color:#3d5e42">–</div>
+          <div style="font-size:11px;color:#6b5a4e;margin-top:3px">Anfragen heute</div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+        <div style="background:var(--sand);border-radius:10px;padding:12px">
+          <div style="font-size:11px;font-weight:600;color:#3d5e42;margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em">Bot vs. Mensch (heute)</div>
+          <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px">
+            <span>🧑 Echte Nutzer</span><strong id="s-humans">–</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:13px">
+            <span>🤖 Bots/Crawler</span><strong id="s-bots" style="color:#C88A75">–</strong>
+          </div>
+          <div id="s-bot-pct" style="font-size:11px;color:#6b5a4e;margin-top:6px"></div>
+        </div>
+        <div style="background:var(--sand);border-radius:10px;padding:12px">
+          <div style="font-size:11px;font-weight:600;color:#3d5e42;margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em">Anfragen (heute)</div>
+          <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px">
+            <span>🏫 Mit Kita</span><strong id="s-kita">–</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:13px">
+            <span>👤 Ohne Kita</span><strong id="s-nokita">–</strong>
+          </div>
+        </div>
+      </div>
+      <div style="font-size:11px;font-weight:600;color:#3d5e42;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Letzte 7 Tage</div>
+      <div id="s-week"></div>
+      <div style="margin-top:12px;padding:10px 12px;background:var(--sand2);border-radius:8px;font-size:12px;color:#6b5a4e">
+        Gestern: <strong id="s-yesterday">–</strong> neue Geräte
+      </div>
+    </div>
+  </div>
+
 </body>
 </html>
