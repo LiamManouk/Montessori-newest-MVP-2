@@ -4574,12 +4574,19 @@ function openLessonFromSearch(id) {
 }
 
 var chatHist = [], chatBusy = false;
-function scrollChat() { var m = document.getElementById('msgs'); m.scrollTop = m.scrollHeight; }
+function scrollChat() {
+  var m = document.getElementById('msgs');
+  var distanceFromBottom = m.scrollHeight - m.scrollTop - m.clientHeight;
+  if (distanceFromBottom < 80) {
+    m.scrollTop = m.scrollHeight;
+  }
+}
 function addUserBub(text) {
   var m = document.getElementById('msgs'), d = document.createElement('div');
   d.className = 'msg user';
   d.innerHTML = '<div class="bub">' + text.replace(/[<>&]/g, function(c) { return {'<':'&lt;','>':'&gt;','&':'&amp;'}[c]; }) + '</div>';
-  m.appendChild(d); scrollChat();
+  m.appendChild(d);
+  m.scrollTop = m.scrollHeight; // immer nach unten bei eigener Nachricht
 }
 function addSysMsg(text) {
   var m = document.getElementById('msgs'), d = document.createElement('div');
