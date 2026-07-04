@@ -4821,7 +4821,7 @@ async function chatGo() {
       headers: _headers2,
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
-        max_tokens: 900,
+        max_tokens: 1500,
         stream: true,
         system: [{type:'text', text:SYS, cache_control:{type:'ephemeral'}}],
         messages: chatHist.slice(-4)
