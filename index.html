@@ -4799,6 +4799,61 @@ function renderBotIncremental(obj, d) {
   scrollChat();
 }
 
+async function streamChatOnce(maxTok, d) {
+  var _apiUrl2 = location.hostname.includes('github.io') ? 'https://montessori-proxy.liam-broemer.workers.dev' : 'https://api.anthropic.com/v1/messages';
+  var _headers2 = location.hostname.includes('github.io') ? {'Content-Type':'application/json','anthropic-version':'2023-06-01','x-device-id':getDeviceId()} : {'Content-Type':'application/json','anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'};
+
+  var r = await fetch(_apiUrl2, {
+    method: 'POST',
+    headers: _headers2,
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-6',
+      max_tokens: maxTok,
+      stream: true,
+      system: [{type:'text', text:SYS, cache_control:{type:'ephemeral'}}],
+      messages: chatHist.slice(-4)
+    })
+  });
+
+  if (r.status === 429) return { status: 429 };
+  if (!r.ok || !r.body) return { status: r.status || 0, error: true };
+
+  var reader = r.body.getReader();
+  var decoder = new TextDecoder();
+  var buf = '';
+  var raw = '';
+  var stopReason = null;
+
+  while (true) {
+    var chunk = await reader.read();
+    if (chunk.done) break;
+    buf += decoder.decode(chunk.value, {stream: true});
+    var lines = buf.split('\n');
+    buf = lines.pop();
+    for (var i = 0; i < lines.length; i++) {
+      var line = lines[i].trim();
+      if (!line.startsWith('data: ')) continue;
+      var jsonStr = line.slice(6);
+      if (jsonStr === '[DONE]') continue;
+      try {
+        var evt = JSON.parse(jsonStr);
+        if (evt.type === 'content_block_delta' && evt.delta && evt.delta.type === 'text_delta') {
+          raw += evt.delta.text;
+          try {
+            var obj = parseJSON(raw);
+            renderBotIncremental(obj, d);
+          } catch(pe) {}
+        }
+        if (evt.type === 'message_delta' && evt.delta && evt.delta.stop_reason) {
+          stopReason = evt.delta.stop_reason;
+        }
+      } catch(pe) {}
+    }
+  }
+
+  return { status: 200, raw: raw, stopReason: stopReason };
+}
+
 async function chatGo() {
   var inp = document.getElementById('inp'), text = inp.value.trim();
   if (!text || chatBusy) return;
@@ -4813,71 +4868,37 @@ async function chatGo() {
   if (chatHist.length > 10) chatHist = chatHist.slice(chatHist.length - 10);
   showTyping();
   try {
-    var _apiUrl2 = location.hostname.includes('github.io') ? 'https://montessori-proxy.liam-broemer.workers.dev' : 'https://api.anthropic.com/v1/messages';
-    var _headers2 = location.hostname.includes('github.io') ? {'Content-Type':'application/json','anthropic-version':'2023-06-01','x-device-id':getDeviceId()} : {'Content-Type':'application/json','anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'};
-
-    var r = await fetch(_apiUrl2, {
-      method: 'POST',
-      headers: _headers2,
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 1500,
-        stream: true,
-        system: [{type:'text', text:SYS, cache_control:{type:'ephemeral'}}],
-        messages: chatHist.slice(-4)
-      })
-    });
-
-    if (r.status === 429) {
-      incrementDailyCount();
-      var ti = document.getElementById('tind'); if (ti) ti.remove();
-      renderFB('Du hast deine 20 Anfragen für heute aufgebraucht. Morgen kannst du den Begleiter wieder nutzen.');
-      chatBusy = false; document.getElementById('sbtn').disabled = false; inp.focus();
-      return;
-    }
-
-    if (!r.ok || !r.body) {
-      var ti2 = document.getElementById('tind'); if (ti2) ti2.remove();
-      renderFB('Verbindungsfehler. Bitte erneut versuchen.');
-      chatBusy = false; document.getElementById('sbtn').disabled = false; inp.focus();
-      return;
-    }
-
-    var ti3 = document.getElementById('tind'); if (ti3) ti3.remove();
     var m = document.getElementById('msgs'), d = document.createElement('div');
     d.className = 'msg bot';
     d.innerHTML = '<div class="av"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 20 L12 10" stroke="#4A6350" stroke-width="1.5" stroke-linecap="round"/><path d="M12 10 C12 5 7 4 6 7 C8 7 10 8.5 12 10Z" fill="#7A8D7B"/><path d="M12 15 C12 10 17 8 18 11 C16 11 14 13 12 15Z" fill="#B5C4B6"/></svg></div><div class="bub"></div>';
+
+    var ti3 = document.getElementById('tind'); if (ti3) ti3.remove();
     m.appendChild(d);
     scrollChat();
-
     await new Promise(function(r){setTimeout(r,1000)});
 
-    var reader = r.body.getReader();
-    var decoder = new TextDecoder();
-    var buf = '';
-    var raw = '';
+    var res = await streamChatOnce(2000, d);
 
-    while (true) {
-      var chunk = await reader.read();
-      if (chunk.done) break;
-      buf += decoder.decode(chunk.value, {stream: true});
-      var lines = buf.split('\n');
-      buf = lines.pop();
-      for (var i = 0; i < lines.length; i++) {
-        var line = lines[i].trim();
-        if (!line.startsWith('data: ')) continue;
-        var jsonStr = line.slice(6);
-        if (jsonStr === '[DONE]') continue;
-        try {
-          var evt = JSON.parse(jsonStr);
-          if (evt.type === 'content_block_delta' && evt.delta && evt.delta.type === 'text_delta') {
-            raw += evt.delta.text;
-            try {
-              var obj = parseJSON(raw);
-              renderBotIncremental(obj, d);
-            } catch(pe) {}
-          }
-        } catch(pe) {}
+    if (res.status === 429) {
+      d.remove();
+      incrementDailyCount();
+      renderFB('Du hast deine 20 Anfragen für heute aufgebraucht. Morgen kannst du den Begleiter wieder nutzen.');
+      return;
+    }
+    if (res.error) {
+      d.remove();
+      renderFB('Verbindungsfehler. Bitte erneut versuchen.');
+      return;
+    }
+
+    var raw = res.raw, stopReason = res.stopReason;
+
+    // Antwort wurde bei max_tokens abgeschnitten -> einmal automatisch mit hoeherem Limit neu anfragen
+    if (stopReason === 'max_tokens') {
+      d.querySelector('.bub').innerHTML = '';
+      var res2 = await streamChatOnce(3500, d);
+      if (!res2.error && res2.status !== 429 && res2.raw) {
+        raw = res2.raw;
       }
     }
 
