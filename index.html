@@ -583,8 +583,6 @@ body.mobile-mode .hbtn{padding:5px 8px}
   <div class="ob-dots">
     <div class="ob-dot active" id="odd0"></div>
     <div class="ob-dot" id="odd1"></div>
-    <div class="ob-dot" id="odd2"></div>
-    <div class="ob-dot" id="odd3"></div>
   </div>
 
   <div class="ob-slides">
@@ -622,22 +620,10 @@ body.mobile-mode .hbtn{padding:5px 8px}
       </div>
 
       <p style="font-size:12px;color:var(--lx);line-height:1.6;margin:4px 0 0">Basiert ausschließlich auf Montessori-Primärwerken und wissenschaftlicher Entwicklungsforschung — kein allgemeines Internet.</p>
+      <button onclick="finishOnboarding()" style="background:var(--g2);color:#fff;border:none;border-radius:10px;padding:12px;width:100%;font-size:14px;font-weight:600;cursor:pointer;margin-top:14px">Zur App →</button>
     </div>
 
-    <!-- Slide 2: Ausblick Lernbereich -->
-    <div class="ob-slide" id="obs2">
-      <p class="ob-s1-title">Und wenn du tiefer verstehen willst?</p>
-      <p class="ob-s1-sub">Im Bereich „Lernen“ warten Kurse zu Montessoris Denkweise — für ruhige Momente, nicht für den Moment der Eskalation.</p>
-    </div>
-
-    <!-- Slide 3: Los geht's -->
-    <div class="ob-slide" id="obs3">
-      <p class="ob-s1-title">Los geht's.</p>
-      <p class="ob-s1-sub">Beschreib deine erste eigene Situation — der Begleiter ist bereit.</p>
-      <button onclick="finishOnboarding()" style="background:var(--g2);color:#fff;border:none;border-radius:10px;padding:12px;width:100%;font-size:14px;font-weight:600;cursor:pointer;margin-top:16px">Zur App →</button>
-    </div>
-
-  </div><!-- ob-slides -->
+      </div><!-- ob-slides -->
 
   <div class="ob-nav">
     <button class="ob-skip" onclick="finishOnboarding()">Überspringen</button>
@@ -1145,7 +1131,7 @@ async function sobAuthSubmit() {
 
 // ─── ONBOARDING ───────────────────────────────────
 var obStep = 0;
-var OB_TOTAL = 4;
+var OB_TOTAL = 2;
 
 function obUpdateDots() {
   for (var i = 0; i < OB_TOTAL; i++) {
