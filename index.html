@@ -664,16 +664,16 @@ body.mobile-mode .hbtn{padding:5px 8px}
 
   <div class="ob-slides">
 
-    <!-- Setup Slide 0: Email -->
+    <!-- Setup Slide 0: Login -->
     <div class="ob-slide active" id="sos0">
       <span class="ob-feature-badge" style="background:#f3e8ff;color:#6b21a8">Schritt 1 von 2</span>
-      <h2 class="ob-feature-title">Kurzes Feedback hilft uns, besser zu werden</h2>
-      <p class="ob-feature-desc">In den nächsten Wochen schicken wir euch ein paar kurze Fragen — wie ihr die App nutzt, was hilfreich war, was fehlt. Das dauert jeweils unter 2 Minuten und hilft dabei, den Begleiter für Familien wie euch zu verbessern.</p>
-      <div style="background:var(--g6);border:1px solid var(--g4);border-radius:10px;padding:12px 14px;font-size:12.5px;color:var(--g1);line-height:1.65;margin-bottom:16px">
-        Kein Newsletter. Keine Werbung. Nur direkte Fragen von uns — maximal 3-4 Mal im ersten Jahr.
-      </div>
+      <h2 class="ob-feature-title">Damit wir dich wiedererkennen</h2>
+      <p class="ob-feature-desc">Mit E-Mail und Passwort merken wir uns euren Fortschritt — und schicken euch hin und wieder eine kurze Frage, wie wir den Begleiter verbessern können. Kein Newsletter, keine Werbung.</p>
       <input type="email" id="sob-email-input" placeholder="eure@email.de" style="width:100%;padding:10px 12px;border:1px solid var(--s3);border-radius:8px;font-size:16px;font-family:inherit;background:var(--s6);margin-bottom:8px">
-      <div style="text-align:center;margin-top:4px">
+      <input type="password" id="sob-password-input" placeholder="Passwort (mind. 6 Zeichen)" style="width:100%;padding:10px 12px;border:1px solid var(--s3);border-radius:8px;font-size:16px;font-family:inherit;background:var(--s6);margin-bottom:4px">
+      <div id="sob-auth-error" style="color:#b91c1c;font-size:12px;min-height:16px;margin-bottom:8px"></div>
+      <button onclick="sobAuthSubmit()" style="background:var(--g2);color:#fff;border:none;border-radius:8px;padding:11px;width:100%;font-size:14px;font-weight:600;cursor:pointer">Weiter</button>
+      <div style="text-align:center;margin-top:8px">
         <button onclick="sobNext()" style="background:none;border:none;color:var(--lx);font-size:12px;cursor:pointer;text-decoration:underline;padding:4px">Lieber nicht — weiter zum nächsten Schritt</button>
       </div>
     </div>
@@ -1059,7 +1059,89 @@ body.mobile-mode .hbtn{padding:5px 8px}
 
 </div>
 
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+
 <script>
+
+// ═══════════════════════════════════════════════════════
+// FIREBASE AUTH — Email/Passwort-Login
+// WICHTIG: firebaseConfig unten mit den echten Werten aus der Firebase-Konsole ersetzen
+// (Firebase-Projekt -> Web-App hinzufuegen -> Config wird dort angezeigt).
+// Bis dahin greift automatisch das alte Verhalten (nur E-Mail speichern, kein Passwort-Zwang),
+// damit die App nicht bricht.
+var firebaseConfig = {
+  apiKey: "REPLACE_ME",
+  authDomain: "REPLACE_ME.firebaseapp.com",
+  projectId: "REPLACE_ME"
+};
+var FIREBASE_READY = false;
+try {
+  if (firebaseConfig.apiKey !== "REPLACE_ME" && typeof firebase !== 'undefined') {
+    firebase.initializeApp(firebaseConfig);
+    FIREBASE_READY = true;
+  }
+} catch (e) {
+  FIREBASE_READY = false;
+}
+
+async function sobAuthSubmit() {
+  var emailEl = document.getElementById('sob-email-input');
+  var pwEl = document.getElementById('sob-password-input');
+  var errEl = document.getElementById('sob-auth-error');
+  var email = emailEl ? emailEl.value.trim() : '';
+  var password = pwEl ? pwEl.value : '';
+  if (errEl) errEl.textContent = '';
+
+  if (!email) { if (errEl) errEl.textContent = 'Bitte E-Mail eingeben.'; return; }
+
+  if (!FIREBASE_READY) {
+    // Fallback, solange Firebase noch nicht konfiguriert ist
+    localStorage.setItem('user_email', email);
+    fetch('https://montessori-proxy.liam-broemer.workers.dev/save-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email })
+    }).catch(function() {});
+    sobNext();
+    return;
+  }
+
+  if (!password || password.length < 6) {
+    if (errEl) errEl.textContent = 'Passwort muss mindestens 6 Zeichen haben.';
+    return;
+  }
+
+  var auth = firebase.auth();
+  try {
+    await auth.signInWithEmailAndPassword(email, password);
+  } catch (err) {
+    if (err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential') {
+      try {
+        await auth.createUserWithEmailAndPassword(email, password);
+      } catch (err2) {
+        if (errEl) errEl.textContent = 'Anmeldung fehlgeschlagen: ' + (err2.message || err2.code);
+        return;
+      }
+    } else if (err.code === 'auth/wrong-password') {
+      if (errEl) errEl.textContent = 'Falsches Passwort.';
+      return;
+    } else {
+      if (errEl) errEl.textContent = 'Anmeldung fehlgeschlagen: ' + (err.message || err.code);
+      return;
+    }
+  }
+
+  localStorage.setItem('user_email', email);
+  fetch('https://montessori-proxy.liam-broemer.workers.dev/save-email', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: email })
+  }).catch(function() {});
+  sobNext();
+}
+// ═══════════════════════════════════════════════════════
+
 
 // ─── ONBOARDING ───────────────────────────────────
 var obStep = 0;
@@ -1114,23 +1196,18 @@ function sobUpdateDots() {
 function sobUpdateNav() {
   var back = document.getElementById('sob-back');
   var next = document.getElementById('sob-next');
+  if (sobStep === 0) {
+    // Login-Screen hat eigenen Weiter-Button (sobAuthSubmit) — untere Nav ausblenden
+    if (back) back.style.display = 'none';
+    if (next) next.style.display = 'none';
+    return;
+  }
+  if (next) next.style.display = 'block';
   if (back) back.style.display = sobStep === 0 ? 'none' : 'block';
   if (next) next.textContent = sobStep === SOB_TOTAL - 1 ? 'Zur App' : 'Weiter';
 }
 
 function sobNext() {
-  if (sobStep === 0) {
-    var emailEl = document.getElementById('sob-email-input');
-    var email = emailEl ? emailEl.value.trim() : '';
-    if (email) {
-      localStorage.setItem('user_email', email);
-      fetch('https://montessori-proxy.liam-broemer.workers.dev/save-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email })
-      }).catch(function() {});
-    }
-  }
   if (sobStep === SOB_TOTAL - 1) { finishSetupOnboarding(); return; }
   document.getElementById('sos' + sobStep).classList.remove('active');
   sobStep++;
