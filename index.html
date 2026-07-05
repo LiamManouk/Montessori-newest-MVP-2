@@ -583,6 +583,7 @@ body.mobile-mode .hbtn{padding:5px 8px}
   <div class="ob-dots">
     <div class="ob-dot active" id="odd0"></div>
     <div class="ob-dot" id="odd1"></div>
+    <div class="ob-dot" id="odd2"></div>
   </div>
 
   <div class="ob-slides">
@@ -620,7 +621,16 @@ body.mobile-mode .hbtn{padding:5px 8px}
       </div>
 
       <p style="font-size:12px;color:var(--lx);line-height:1.6;margin:4px 0 0">Basiert ausschließlich auf Montessori-Primärwerken und wissenschaftlicher Entwicklungsforschung — kein allgemeines Internet.</p>
-      <button onclick="finishOnboarding()" style="background:var(--g2);color:#fff;border:none;border-radius:10px;padding:12px;width:100%;font-size:14px;font-weight:600;cursor:pointer;margin-top:14px">Zur App →</button>
+    </div>
+
+    <!-- Slide 2: Login (Bot-Schutz) -->
+    <div class="ob-slide" id="obs2">
+      <p class="ob-s1-title">Bevor es losgeht...</p>
+      <p class="ob-s1-sub">Ein kurzer Login stellt sicher, dass hier echte Eltern und keine Bots unterwegs sind — und merkt sich euren Fortschritt.</p>
+      <input type="email" id="ob-email-input" placeholder="eure@email.de" style="width:100%;padding:10px 12px;border:1px solid var(--s3);border-radius:8px;font-size:16px;font-family:inherit;background:var(--s6);margin-bottom:8px;margin-top:16px">
+      <input type="password" id="ob-password-input" placeholder="Passwort (mind. 6 Zeichen)" style="width:100%;padding:10px 12px;border:1px solid var(--s3);border-radius:8px;font-size:16px;font-family:inherit;background:var(--s6);margin-bottom:4px">
+      <div id="ob-auth-error" style="color:#b91c1c;font-size:12px;min-height:16px;margin-bottom:8px"></div>
+      <button onclick="obAuthSubmit()" style="background:var(--g2);color:#fff;border:none;border-radius:10px;padding:12px;width:100%;font-size:14px;font-weight:600;cursor:pointer">Weiter →</button>
     </div>
 
       </div><!-- ob-slides -->
@@ -645,28 +655,12 @@ body.mobile-mode .hbtn{padding:5px 8px}
 
   <div class="ob-dots">
     <div class="ob-dot active" id="sod0"></div>
-    <div class="ob-dot" id="sod1"></div>
   </div>
 
   <div class="ob-slides">
 
-    <!-- Setup Slide 0: Login -->
+    <!-- Setup Slide 0: Kita -->
     <div class="ob-slide active" id="sos0">
-      <span class="ob-feature-badge" style="background:#f3e8ff;color:#6b21a8">Schritt 1 von 2</span>
-      <h2 class="ob-feature-title">Damit wir dich wiedererkennen</h2>
-      <p class="ob-feature-desc">Mit E-Mail und Passwort merken wir uns euren Fortschritt — und schicken euch hin und wieder eine kurze Frage, wie wir den Begleiter verbessern können. Kein Newsletter, keine Werbung.</p>
-      <input type="email" id="sob-email-input" placeholder="eure@email.de" style="width:100%;padding:10px 12px;border:1px solid var(--s3);border-radius:8px;font-size:16px;font-family:inherit;background:var(--s6);margin-bottom:8px">
-      <input type="password" id="sob-password-input" placeholder="Passwort (mind. 6 Zeichen)" style="width:100%;padding:10px 12px;border:1px solid var(--s3);border-radius:8px;font-size:16px;font-family:inherit;background:var(--s6);margin-bottom:4px">
-      <div id="sob-auth-error" style="color:#b91c1c;font-size:12px;min-height:16px;margin-bottom:8px"></div>
-      <button onclick="sobAuthSubmit()" style="background:var(--g2);color:#fff;border:none;border-radius:8px;padding:11px;width:100%;font-size:14px;font-weight:600;cursor:pointer">Weiter</button>
-      <div style="text-align:center;margin-top:8px">
-        <button onclick="sobNext()" style="background:none;border:none;color:var(--lx);font-size:12px;cursor:pointer;text-decoration:underline;padding:4px">Lieber nicht — weiter zum nächsten Schritt</button>
-      </div>
-    </div>
-
-    <!-- Setup Slide 1: Kita -->
-    <div class="ob-slide" id="sos1">
-      <span class="ob-feature-badge" style="background:#e0f0ff;color:#0c447c">Schritt 2 von 2</span>
       <h2 class="ob-feature-title">Mit eurer Einrichtung verbinden</h2>
       <p class="ob-feature-desc">Wenn eure Kita dabei ist, erhaltet ihr mehr tägliche Anfragen an den Begleiter — und in Zukunft fließt auch die Pädagogik-Philosophie eurer Einrichtung direkt in jede Antwort ein.</p>
       <div class="ob-steps-list" style="margin-bottom:14px">
@@ -1126,12 +1120,67 @@ async function sobAuthSubmit() {
   }).catch(function() {});
   sobNext();
 }
+
+async function obAuthSubmit() {
+  var emailEl = document.getElementById('ob-email-input');
+  var pwEl = document.getElementById('ob-password-input');
+  var errEl = document.getElementById('ob-auth-error');
+  var email = emailEl ? emailEl.value.trim() : '';
+  var password = pwEl ? pwEl.value : '';
+  if (errEl) errEl.textContent = '';
+
+  if (!email) { if (errEl) errEl.textContent = 'Bitte E-Mail eingeben.'; return; }
+
+  if (!FIREBASE_READY) {
+    localStorage.setItem('user_email', email);
+    fetch('https://montessori-proxy.liam-broemer.workers.dev/save-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email })
+    }).catch(function() {});
+    finishOnboarding();
+    return;
+  }
+
+  if (!password || password.length < 6) {
+    if (errEl) errEl.textContent = 'Passwort muss mindestens 6 Zeichen haben.';
+    return;
+  }
+
+  var auth = firebase.auth();
+  try {
+    await auth.signInWithEmailAndPassword(email, password);
+  } catch (err) {
+    if (err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential') {
+      try {
+        await auth.createUserWithEmailAndPassword(email, password);
+      } catch (err2) {
+        if (errEl) errEl.textContent = 'Anmeldung fehlgeschlagen: ' + (err2.message || err2.code);
+        return;
+      }
+    } else if (err.code === 'auth/wrong-password') {
+      if (errEl) errEl.textContent = 'Falsches Passwort.';
+      return;
+    } else {
+      if (errEl) errEl.textContent = 'Anmeldung fehlgeschlagen: ' + (err.message || err.code);
+      return;
+    }
+  }
+
+  localStorage.setItem('user_email', email);
+  fetch('https://montessori-proxy.liam-broemer.workers.dev/save-email', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: email })
+  }).catch(function() {});
+  finishOnboarding();
+}
 // ═══════════════════════════════════════════════════════
 
 
 // ─── ONBOARDING ───────────────────────────────────
 var obStep = 0;
-var OB_TOTAL = 2;
+var OB_TOTAL = 3;
 
 function obUpdateDots() {
   for (var i = 0; i < OB_TOTAL; i++) {
@@ -1165,7 +1214,7 @@ function obUpdateNav() {
 
 // ─── SETUP-ONBOARDING ─────────────────────────────────────
 var sobStep = 0;
-var SOB_TOTAL = 2;
+var SOB_TOTAL = 1;
 
 function showSetupOnboarding() {
   var el = document.getElementById('setup-onboarding');
