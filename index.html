@@ -5289,7 +5289,7 @@ function showPwaBanner() {
 
   var opens = parseInt(localStorage.getItem('pwa_open_count') || '0') + 1;
   localStorage.setItem('pwa_open_count', String(opens));
-  if (opens < 2) return; // erst ab dem 2. Öffnen
+  if (opens < 5) return; // erst ab dem 5. Öffnen
 
   var banner = document.getElementById('pwa-banner');
   var sub = document.getElementById('pwa-sub');
