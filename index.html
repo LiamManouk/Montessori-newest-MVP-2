@@ -639,7 +639,7 @@ body.mobile-mode .hbtn{padding:5px 8px}
       </div><!-- ob-slides -->
 
   <div class="ob-nav">
-    <button class="ob-skip" onclick="finishOnboarding()">Überspringen</button>
+    <button class="ob-skip" onclick="obSkipToLogin()">Überspringen</button>
     <div class="ob-spacer"></div>
     <button class="ob-back" id="ob-back" onclick="obPrev()" style="display:none">Zurück</button>
     <button class="ob-next" id="ob-next" onclick="obNext()" disabled>Weiter</button>
@@ -1320,6 +1320,14 @@ function obPrev() {
 function finishOnboarding() {
   document.getElementById('onboarding').classList.add('done');
   localStorage.setItem('mont_onboarded', '1');
+}
+
+function obSkipToLogin() {
+  document.getElementById('obs' + obStep).classList.remove('active');
+  obStep = OB_TOTAL - 1;
+  document.getElementById('obs' + obStep).classList.add('active');
+  obUpdateDots();
+  obUpdateNav();
 }
 
 function resetOnboarding() {
