@@ -585,39 +585,35 @@ body.mobile-mode .hbtn{padding:5px 8px}
     <div class="ob-dot" id="odd1"></div>
     <div class="ob-dot" id="odd2"></div>
     <div class="ob-dot" id="odd3"></div>
-    <div class="ob-dot" id="odd4"></div>
   </div>
 
   <div class="ob-slides">
 
-    <!-- Slide 0: Gerät -->
+    <!-- Slide 0: Positionierung -->
     <div class="ob-slide active" id="obs0">
-      <p class="ob-s1-title">Willkommen.<br>Wie nutzt ihr die App?</p>
-      <p class="ob-s1-sub">Das Design passt sich eurem Gerät an — wählt was zutrifft.</p>
-      <div class="device-grid">
-        <div class="device-card" id="dev-desktop" onclick="selectDevice('desktop')">
-          <div class="device-icon"><svg width="28" height="28" viewBox="0 0 28 28" fill="none"><rect x="4" y="5" width="20" height="14" rx="2" stroke="#7A8D7B" stroke-width="1.2" fill="#F2F5F2"/><path d="M2 20 L26 20" stroke="#7A8D7B" stroke-width="1.2" stroke-linecap="round"/><path d="M10 20 L18 20" stroke="#C88A75" stroke-width="1.5" stroke-linecap="round"/></svg></div>
-          <div class="device-label">Desktop / Laptop</div>
-          <div class="device-sub">Am Computer oder großem Bildschirm</div>
+      <p class="ob-s1-title">Montessori-Begleiter ist für alle, die Montessori im Alltag anwenden wollen.</p>
+      <p class="ob-s1-sub">Montessoris Originaltexte sind dicht und zeitaufwendig — im stressigen Familienalltag bleibt dafür meist keine Zeit.</p>
+      <div class="ob-steps-list" style="margin-top:18px">
+        <div class="ob-step-row">
+          <div class="ob-step-num" style="background:#d8f3dc;color:#1b3a22">1</div>
+          <div class="ob-step-text"><strong>Im Alltag bei konkreten Situationen Hilfe brauchen</strong> — sofort, wenn's gerade passiert</div>
         </div>
-        <div class="device-card" id="dev-mobile" onclick="selectDevice('mobile')">
-          <div class="device-icon"><svg width="28" height="28" viewBox="0 0 28 28" fill="none"><rect x="9" y="3" width="10" height="22" rx="2.5" stroke="#7A8D7B" stroke-width="1.2" fill="#F2F5F2"/><circle cx="14" cy="22" r="1.2" fill="#7A8D7B"/><path d="M12 5.5 L16 5.5" stroke="#7A8D7B" stroke-width="1" stroke-linecap="round"/></svg></div>
-          <div class="device-label">Smartphone</div>
-          <div class="device-sub">Unterwegs oder am Handy</div>
+        <div class="ob-step-row">
+          <div class="ob-step-num" style="background:#e0f0ff;color:#0c447c">2</div>
+          <div class="ob-step-text"><strong>Nach der Situation weiter verstehen wollen</strong> — im Lernbereich vertiefen, warum es funktioniert</div>
         </div>
       </div>
     </div>
 
-    <!-- Slide 1: Begleiter -->
+    <!-- Slide 1: Konkretes Beispiel (Gemuese) -->
     <div class="ob-slide" id="obs1" data-animated="false">
-      <span class="ob-feature-badge" style="background:#d8f3dc;color:#1b3a22">Funktion 1 von 4</span>
-      <h2 class="ob-feature-title">Der Begleiter — Hilfe im Moment wo es passiert</h2>
-      <p class="ob-feature-desc">Beschreibt eine Situation mit eurem Kind — der Begleiter antwortet mit wissenschaftlichem Hintergrund, dem passenden Montessori-Prinzip und konkreten Schritten für genau diesen Moment.</p>
-      <p style="font-size:12px;color:var(--lx);line-height:1.6;margin:0 0 4px">Alle Antworten basieren ausschließlich auf einer handverlesenen Wissensbasis aus Montessori-Primärwerken und wissenschaftlicher Entwicklungsforschung — kein allgemeines Internet, keine ungeprüften Quellen.</p>
+      <span class="ob-feature-badge" style="background:#d8f3dc;color:#1b3a22">Ein Beispiel</span>
+      <h2 class="ob-feature-title">Mein Kind weigert sich, Gemüse zu essen.</h2>
+      <p class="ob-feature-desc">Beschreib eine Situation — der Begleiter antwortet mit wissenschaftlichem Hintergrund, dem passenden Montessori-Prinzip und konkreten Schritten für genau diesen Moment.</p>
 
       <div style="background:var(--s6);border-radius:12px;padding:14px;margin:12px 0" id="ob-chat-demo">
         <div class="msg user" style="margin-bottom:10px">
-          <div class="bub" style="margin-left:auto;max-width:90%">Mein Kind liegt auf dem Boden im Supermarkt und schreit — was soll ich tun?</div>
+          <div class="bub" style="margin-left:auto;max-width:90%">Mein Kind weigert sich, Gemüse zu essen — was kann ich tun?</div>
         </div>
         <div class="msg bot" id="ob-typing-demo">
           <div class="av"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 20 L12 10" stroke="#4A6350" stroke-width="1.5" stroke-linecap="round"/><path d="M12 10 C12 5 7 4 6 7 C8 7 10 8.5 12 10Z" fill="#7A8D7B"/><path d="M12 15 C12 10 17 8 18 11 C16 11 14 13 12 15Z" fill="#B5C4B6"/></svg></div>
@@ -625,75 +621,20 @@ body.mobile-mode .hbtn{padding:5px 8px}
         </div>
       </div>
 
-      <div style="background:var(--g6);border:1px solid var(--g4);border-radius:10px;padding:11px 13px;font-size:12.5px;color:var(--g1);line-height:1.6;margin-top:4px">
-        <strong>Tipp:</strong> Legt ein Kinderprofil an — dann werden Alter, Geschwister und Lebenssituation in jede Antwort einbezogen. Den Button findet ihr oben rechts.
-      </div>
+      <p style="font-size:12px;color:var(--lx);line-height:1.6;margin:4px 0 0">Basiert ausschließlich auf Montessori-Primärwerken und wissenschaftlicher Entwicklungsforschung — kein allgemeines Internet.</p>
     </div>
 
-    <!-- Slide 2: Alltagssituationen -->
+    <!-- Slide 2: Ausblick Lernbereich -->
     <div class="ob-slide" id="obs2">
-      <span class="ob-feature-badge" style="background:#fef9c3;color:#854d0e">Funktion 2 von 4</span>
-      <h2 class="ob-feature-title">Alltagssituationen üben — Theorie direkt anwenden</h2>
-      <p class="ob-feature-desc">Ihr werdet mit echten Situationen konfrontiert, beschreibt eure eigene Reaktion und erhaltet persönliches Feedback auf Basis der Montessori-Wissensbasis. So wird Lernen zu echter Reflexion über euer eigenes Verhalten — nicht trockene Theorie.</p>
-      <div class="ob-steps-list">
-        <div class="ob-step-row">
-          <div class="ob-step-num" style="background:#fef9c3;color:#854d0e">1</div>
-          <div class="ob-step-text"><strong>Situation lesen</strong> — eine konkrete Alltagssituation mit eurem Kind</div>
-        </div>
-        <div class="ob-step-row">
-          <div class="ob-step-num" style="background:#fef9c3;color:#854d0e">2</div>
-          <div class="ob-step-text"><strong>Eigene Reaktion beschreiben</strong> — was würdet ihr konkret sagen oder tun?</div>
-        </div>
-        <div class="ob-step-row">
-          <div class="ob-step-num" style="background:#fef9c3;color:#854d0e">3</div>
-          <div class="ob-step-text"><strong>Persönliches Feedback erhalten</strong> — Analyse eurer Reaktion mit Montessori-Kontext und besseren Alternativen</div>
-        </div>
-      </div>
-      <p style="font-size:12px;color:var(--lx);line-height:1.6;margin-top:10px">Verfügbar im Tab <strong>Lernen</strong> → "Alltagssituationen".</p>
+      <p class="ob-s1-title">Und wenn du tiefer verstehen willst?</p>
+      <p class="ob-s1-sub">Im Bereich „Lernen“ warten Kurse zu Montessoris Denkweise — für ruhige Momente, nicht für den Moment der Eskalation.</p>
     </div>
 
-    <!-- Slide 3: Lernkurse -->
+    <!-- Slide 3: Los geht's -->
     <div class="ob-slide" id="obs3">
-      <span class="ob-feature-badge" style="background:#e0f0ff;color:#0c447c">Funktion 3 von 4</span>
-      <h2 class="ob-feature-title">Lernkurse — Montessoris Philosophie wirklich verstehen</h2>
-      <p class="ob-feature-desc">Hinter jedem konkreten Tipp steckt ein tiefes Verständnis vom Kind. Die Grundprinzipien-Lektionen erschließen Montessoris Denkweise — wer versteht warum etwas wirkt, reagiert anders als wer nur Tipps befolgt.</p>
-      <div class="ob-steps-list">
-        <div class="ob-step-row">
-          <div class="ob-step-num" style="background:#e0f0ff;color:#0c447c">🌱</div>
-          <div class="ob-step-text"><strong>Grundprinzipien</strong> — Wer war Montessori? Das absorbierende Gehirn. Sensible Phasen.</div>
-        </div>
-        <div class="ob-step-row">
-          <div class="ob-step-num" style="background:#e0f0ff;color:#0c447c">🤝</div>
-          <div class="ob-step-text"><strong>Haltung & Grenzen</strong> — Beobachten statt eingreifen. Grenzen mit Würde setzen.</div>
-        </div>
-        <div class="ob-step-row">
-          <div class="ob-step-num" style="background:#e0f0ff;color:#0c447c">🔬</div>
-          <div class="ob-step-text"><strong>Wissenschaft</strong> — Was die Entwicklungsforschung über das Kindgehirn weiß.</div>
-        </div>
-      </div>
-      <p style="font-size:12px;color:var(--lx);line-height:1.6;margin-top:10px">Verfügbar im Tab <strong>Lernen</strong> → Lernkurse. Jede Lektion folgt: Prinzip → In Aktion → Situation → Aufgabe für heute.</p>
-    </div>
-
-    <!-- Slide 4: Kinderprofil + Quellen -->
-    <div class="ob-slide" id="obs4">
-      <span class="ob-feature-badge" style="background:#fce8ff;color:#701a75">Funktion 4 von 4</span>
-      <h2 class="ob-feature-title">Kinderprofil & Wissensbasis — für noch präzisere Antworten</h2>
-      <p class="ob-feature-desc">Je mehr der Begleiter über euer Kind weiß, desto passgenauer die Antworten. Tragt Alter, Geschwisterkonstellation und aktuelle Lebenssituation ein — das fließt in jede Antwort des Begleiters ein.</p>
-      <div class="ob-steps-list" style="margin-bottom:14px">
-        <div class="ob-step-row">
-          <div class="ob-step-num" style="background:#fce8ff;color:#701a75">👤</div>
-          <div class="ob-step-text"><strong>Kinderprofil</strong> — Name, Alter, Geschwister, Lebenssituation. Oben rechts in der App.</div>
-        </div>
-        <div class="ob-step-row">
-          <div class="ob-step-num" style="background:#fce8ff;color:#701a75">📚</div>
-          <div class="ob-step-text"><strong>Quellen & Wissensbasis</strong> — alle wissenschaftlichen Grundlagen und Montessori-Werke einsehbar. Oben rechts → "Quellen".</div>
-        </div>
-        <div class="ob-step-row">
-          <div class="ob-step-num" style="background:#fce8ff;color:#701a75">📈</div>
-          <div class="ob-step-text"><strong>Fortschritt</strong> — verfolgt euren Lernweg durch die Lektionen im Tab "Fortschritt".</div>
-        </div>
-      </div>
-      <button onclick="finishOnboarding()" style="background:var(--g2);color:#fff;border:none;border-radius:10px;padding:12px;width:100%;font-size:14px;font-weight:600;cursor:pointer;margin-top:4px">Zur App →</button>
+      <p class="ob-s1-title">Los geht's.</p>
+      <p class="ob-s1-sub">Beschreib deine erste eigene Situation — der Begleiter ist bereit.</p>
+      <button onclick="finishOnboarding()" style="background:var(--g2);color:#fff;border:none;border-radius:10px;padding:12px;width:100%;font-size:14px;font-weight:600;cursor:pointer;margin-top:16px">Zur App →</button>
     </div>
 
   </div><!-- ob-slides -->
@@ -1122,8 +1063,7 @@ body.mobile-mode .hbtn{padding:5px 8px}
 
 // ─── ONBOARDING ───────────────────────────────────
 var obStep = 0;
-var obDevice = null;
-var OB_TOTAL = 5;
+var OB_TOTAL = 4;
 
 function obUpdateDots() {
   for (var i = 0; i < OB_TOTAL; i++) {
@@ -1145,7 +1085,7 @@ function obUpdateNav() {
   } else if (obStep === 0) {
     next.style.display = 'block';
     next.textContent = 'Weiter';
-    next.disabled = !obDevice;
+    next.disabled = false;
     if (skip) skip.style.display = 'block';
   } else {
     next.style.display = 'block';
@@ -1243,17 +1183,12 @@ function finishSetupOnboarding() {
   localStorage.setItem('mont_setup_done', '1');
 }
 
-function selectDevice(type) {
-  obDevice = type;
-  document.getElementById('dev-desktop').classList.toggle('selected', type === 'desktop');
-  document.getElementById('dev-mobile').classList.toggle('selected', type === 'mobile');
-  document.getElementById('ob-next').disabled = false;
-  if (type === 'mobile') {
-    document.body.classList.add('mobile-mode');
-  } else {
-    document.body.classList.remove('mobile-mode');
-  }
+function applyDeviceMode() {
+  var isMobile = window.matchMedia('(max-width: 768px)').matches;
+  document.body.classList.toggle('mobile-mode', isMobile);
+  localStorage.setItem('mont_device', isMobile ? 'mobile' : 'desktop');
 }
+window.addEventListener('resize', applyDeviceMode);
 
 function obNext() {
   if (obStep === OB_TOTAL - 1) { finishOnboarding(); return; }
@@ -1279,15 +1214,13 @@ function obPrev() {
 
 function finishOnboarding() {
   document.getElementById('onboarding').classList.add('done');
-  if (obDevice) localStorage.setItem('mont_device', obDevice);
   localStorage.setItem('mont_onboarded', '1');
-  if (!localStorage.getItem('mont_setup_done')) showSetupOnboarding();
 }
 
 function resetOnboarding() {
   localStorage.removeItem('mont_onboarded');
   localStorage.removeItem('mont_setup_done');
-  localStorage.removeItem('mont_device');
+  localStorage.removeItem('mont_first_chat_done');
   // Onboarding 1 zurücksetzen
   obStep = 0;
   document.getElementById('onboarding').classList.remove('done');
@@ -1305,11 +1238,9 @@ function resetOnboarding() {
 
 function checkOnboarding() {
   var done = localStorage.getItem('mont_onboarded');
-  var device = localStorage.getItem('mont_device');
+  applyDeviceMode();
   if (done) {
     document.getElementById('onboarding').classList.add('done');
-    if (device === 'mobile') document.body.classList.add('mobile-mode');
-    if (!localStorage.getItem('mont_setup_done')) showSetupOnboarding();
   } else {
     obUpdateNav();
   }
@@ -4935,6 +4866,13 @@ async function chatGo() {
         }
       }
       addFeedbackButtons(raw);
+
+      if (!obj.clarify && !localStorage.getItem('mont_first_chat_done')) {
+        localStorage.setItem('mont_first_chat_done', '1');
+        if (!localStorage.getItem('mont_setup_done')) {
+          setTimeout(showSetupOnboarding, 1500);
+        }
+      }
     } catch(e2) {
       d.querySelector('.bub').textContent = raw;
     }
