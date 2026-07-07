@@ -1,7 +1,7 @@
 const CACHE = 'montessori-v1';
 const ASSETS = [
-  '/montessori-newest-mvp/',
-  '/montessori-newest-mvp/index.html'
+  './',
+  './index.html'
 ];
 
 self.addEventListener('install', e => {
