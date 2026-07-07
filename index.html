@@ -4768,6 +4768,14 @@ function renderFB(text) {
   d.innerHTML = '<div class="av"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 20 L12 10" stroke="#4A6350" stroke-width="1.5" stroke-linecap="round"/><path d="M12 10 C12 5 7 4 6 7 C8 7 10 8.5 12 10Z" fill="#7A8D7B"/><path d="M12 15 C12 10 17 8 18 11 C16 11 14 13 12 15Z" fill="#B5C4B6"/></svg></div><div class="bub">' + esc(text).replace(/\n/g,'<br>') + '</div>';
   m.appendChild(d); scrollChat();
 }
+function renderFBAction(text, btnLabel, fn) {
+  var m = document.getElementById('msgs'), d = document.createElement('div');
+  d.className = 'msg bot';
+  var btnId = 'fbact' + Date.now();
+  d.innerHTML = '<div class="av"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 20 L12 10" stroke="#4A6350" stroke-width="1.5" stroke-linecap="round"/><path d="M12 10 C12 5 7 4 6 7 C8 7 10 8.5 12 10Z" fill="#7A8D7B"/><path d="M12 15 C12 10 17 8 18 11 C16 11 14 13 12 15Z" fill="#B5C4B6"/></svg></div><div class="bub">' + esc(text).replace(/\n/g,'<br>') + '<div style="margin-top:8px"><button id="' + btnId + '" style="padding:7px 12px;border:none;border-radius:8px;background:var(--g2);color:#fff;font-size:12.5px;font-weight:600;cursor:pointer">' + esc(btnLabel) + '</button></div></div>';
+  m.appendChild(d); scrollChat();
+  document.getElementById(btnId).addEventListener('click', fn);
+}
 function parseJSON(raw) {
   var cleaned = raw.replace(/```json/g,'').replace(/```/g,'').trim();
   var s = cleaned.indexOf('{'), e = cleaned.lastIndexOf('}');
@@ -4940,7 +4948,10 @@ async function chatGo() {
     if (res.status === 429) {
       d.remove();
       incrementDailyCount();
-      renderFB('Du hast deine 20 Anfragen für heute aufgebraucht. Morgen kannst du den Begleiter wieder nutzen.');
+      renderFB('Du hast deine 20 kostenlosen Anfragen für heute aufgebraucht. Morgen stehen dir wieder 20 neue zur Verfügung.');
+      if (!localStorage.getItem('mont_setup_done')) {
+        renderFBAction('Mit einer Kita-Partnerschaft gibt es 50 statt 20 Anfragen täglich. Frag doch mal eure Kita, ob sie eine Partnerschaft mit uns eingehen möchte!', 'Kita verbinden', showSetupOnboarding);
+      }
       return;
     }
     if (res.error) {
@@ -4996,9 +5007,6 @@ async function chatGo() {
 
       if (!obj.clarify && !localStorage.getItem('mont_first_chat_done')) {
         localStorage.setItem('mont_first_chat_done', '1');
-        if (!localStorage.getItem('mont_setup_done')) {
-          setTimeout(showSetupOnboarding, 1500);
-        }
       }
 
       if (!obj.clarify) {
